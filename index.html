@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TabunganKu & Kalkulator Mobil Impian</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: { 50: '#fdf8f6', 100: '#f2e8e5', 500: '#f97316', 600: '#ea580c', 700: '#c2410c' },
+                        gold: { 400: '#facc15', 500: '#eab308', 600: '#ca8a04' }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Font Inter & Lucide Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col selection:bg-orange-500 selection:text-white">
+
+    <header class="sticky top-0 z-50 bg-slate-900/80 backdrop-blur-md border-b border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-orange-500 to-amber-400 flex items-center justify-center shadow-lg shadow-orange-500/20">
+                    <i data-lucide="piggy-bank" class="w-6 h-6 text-white"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg tracking-tight">TabunganKu <span class="text-orange-500">Pro</span></h1>
+                    <p class="text-xs text-slate-400">Rencana Tabungan & Target Mobil Mudik</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-3">
+                <button onclick="resetData()" class="text-xs px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition border border-slate-700">
+                    Reset Data
+                </button>
+                <div class="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-xs font-bold text-orange-400">
+                    ID
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+        
+        <!-- DASHBOARD SUMMARY CARDS -->
+        <section class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <!-- Card 1 -->
+            <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-5 shadow-lg relative overflow-hidden">
+                <div class="absolute -right-4 -bottom-4 opacity-15 text-orange-500">
+                    <i data-lucide="wallet" class="w-24 h-24"></i>
+                </div>
+                <p class="text-xs font-medium text-slate-400 uppercase tracking-wider">Total Terkumpul (Pokok)</p>
+                <h3 id="dashTotalPokok" class="text-2xl font-bold mt-2 text-white">Rp 0</h3>
+                <p class="text-xs text-emerald-400 mt-1 flex items-center"><i data-lucide="trending-up" class="w-3.5 h-3.5 mr-1"></i> Mulai Okt 2026</p>
+            </div>
+            <!-- Card 2 -->
+            <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-5 shadow-lg relative overflow-hidden">
+                <div class="absolute -right-4 -bottom-4 opacity-15 text-amber-400">
+                    <i data-lucide="coins" class="w-24 h-24"></i>
+                </div>
+                <p class="text-xs font-medium text-slate-400 uppercase tracking-wider">Estimasi Gram Emas</p>
+                <h3 id="dashTotalGold" class="text-2xl font-bold mt-2 text-amber-400">0.0 Gram</h3>
+                <p class="text-xs text-slate-400 mt-1">Berdasarkan harga berjalan</p>
+            </div>
+            <!-- Card 3 -->
+            <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-5 shadow-lg relative overflow-hidden">
+                <div class="absolute -right-4 -bottom-4 opacity-15 text-blue-400">
+                    <i data-lucide="target" class="w-24 h-24"></i>
+                </div>
+                <p class="text-xs font-medium text-slate-400 uppercase tracking-wider">Proyeksi Nilai Emas (5 Th)</p>
+                <h3 id="dashProjectedValue" class="text-2xl font-bold mt-2 text-blue-400">Rp 0</h3>
+                <p class="text-xs text-slate-400 mt-1">Asumsi kenaikan 8%/tahun</p>
+            </div>
+            <!-- Card 4 -->
+            <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-5 shadow-lg relative overflow-hidden">
+                <div class="absolute -right-4 -bottom-4 opacity-15 text-emerald-400">
+                    <i data-lucide="car" class="w-24 h-24"></i>
+                </div>
+                <p class="text-xs font-medium text-slate-400 uppercase tracking-wider">Status Mobil Mudik</p>
+                <h3 id="dashCarStatus" class="text-xl font-bold mt-2 text-emerald-400">Belum Cukup</h3>
+                <p id="dashCarDesc" class="text-xs text-slate-400 mt-1">Target Rp 90 Juta</p>
+            </div>
+        </section>
+
+        <!-- MAIN TABS NAVIGATION -->
+        <div class="flex space-x-2 border-b border-slate-800 overflow-x-auto">
+            <button onclick="switchTab('calculator')" id="tab-calculator" class="tab-btn px-5 py-3 font-semibold text-sm border-b-2 border-orange-500 text-orange-500 flex items-center space-x-2 whitespace-nowrap">
+                <i data-lucide="calculator" class="w-4 h-4"></i>
+                <span>Kalkulator & Skenario 5 Tahun</span>
+            </button>
+            <button onclick="switchTab('carplanner')" id="tab-carplanner" class="tab-btn px-5 py-3 font-semibold text-sm border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center space-x-2 whitespace-nowrap">
+                <i data-lucide="car-front" class="w-4 h-4"></i>
+                <span>Perbandingan Mobil (Avanza vs Calya)</span>
+            </button>
+            <button onclick="switchTab('history')" id="tab-history" class="tab-btn px-5 py-3 font-semibold text-sm border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center space-x-2 whitespace-nowrap">
+                <i data-lucide="history" class="w-4 h-4"></i>
+                <span>Log Setoran Bulanan</span>
+            </button>
+        </div>
+
+        <div id="content-calculator" class="tab-content grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Left Config Form -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-5 lg:col-span-1 shadow-xl">
+                <h2 class="text-lg font-bold flex items-center text-white">
+                    <i data-lucide="sliders" class="w-5 h-5 mr-2 text-orange-500"></i>
+                    Parameter Tabungan
+                </h2>
+                
+                <div>
+                    <label class="block text-xs font-medium text-slate-400 mb-1">Setoran Rutin per Bulan (Rp)</label>
+                    <input type="number" id="monthlyDeposit" value="1500000" step="100000" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-orange-500 font-semibold">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium text-slate-400 mb-1">Jangka Waktu (Bulan)</label>
+                    <input type="number" id="durationMonths" value="60" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-orange-500">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium text-slate-400 mb-1">Harga Emas Saat Ini / Gram (Rp)</label>
+                    <input type="number" id="currentGoldPrice" value="1350000" step="10000" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-orange-500">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium text-slate-400 mb-1">Estimasi Kenaikan Emas Tahunan (%)</label>
+                    <input type="number" id="goldGrowthRate" value="8" step="0.5" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-orange-500">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium text-slate-400 mb-1">Bunga Deposito / SBN Tahunan (%)</label>
+                    <input type="number" id="interestRate" value="6" step="0.5" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-orange-500">
+                </div>
+
+                <button onclick="calculateSavings()" class="w-full py-3 bg-gradient-to-r from-orange-600 to-amber-500 hover:from-orange-500 hover:to-amber-400 text-white font-bold rounded-xl shadow-lg shadow-orange-600/20 transition flex items-center justify-center space-x-2">
+                    <i data-lucide="sparkles" class="w-4 h-4"></i>
+                    <span>Hitung Simulasi Skenario</span>
+                </button>
+            </div>
+
+            <!-- Right Results View -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Summary Result Banner -->
+                <div class="bg-gradient-to-br from-slate-900 to-slate-900/80 border border-slate-800 rounded-2xl p-6 shadow-xl">
+                    <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wider">Hasil Akumulasi Modal Murni</h3>
+                    <div class="flex items-baseline space-x-3 mt-2">
+                        <span id="resTotalPokok" class="text-3xl font-extrabold text-white">Rp 90.000.000</span>
+                        <span class="text-xs px-2.5 py-1 rounded-full bg-slate-800 text-orange-400 font-medium">Selama 5 Tahun (60 Bulan)</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6 pt-6 border-t border-slate-800">
+                        <div class="bg-slate-950/50 p-4 rounded-xl border border-slate-800/80">
+                            <span class="text-xs text-slate-400">1. Celengan Tunai (0%)</span>
+                            <h4 id="resCash" class="text-lg font-bold text-slate-200 mt-1">Rp 90.000.000</h4>
+                            <p class="text-xs text-rose-400 mt-1">Tergerus Inflasi</p>
+                        </div>
+                        <div class="bg-slate-950/50 p-4 rounded-xl border border-slate-800/80">
+                            <span class="text-xs text-slate-400">2. Deposito / SBN (~6%)</span>
+                            <h4 id="resBank" class="text-lg font-bold text-blue-400 mt-1">Rp 104.500.000</h4>
+                            <p class="text-xs text-emerald-400 mt-1">+ Bunga Majemuk</p>
+                        </div>
+                        <div class="bg-slate-950/50 p-4 rounded-xl border border-slate-800/80 ring-1 ring-amber-500/50">
+                            <span class="text-xs text-amber-400 font-semibold">3. Menabung Emas ⭐</span>
+                            <h4 id="resGold" class="text-lg font-bold text-amber-400 mt-1">Rp 132.400.000</h4>
+                            <p id="resGoldWeight" class="text-xs text-slate-300 mt-1">~40 Gram Emas Fisik</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detailed Breakdown Table / Breakdown Cards -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4">
+                    <h4 class="font-bold text-white flex items-center">
+                        <i data-lucide="pie-chart" class="w-5 h-5 mr-2 text-orange-500"></i>
+                        Analisis Kelayakan & Potensi Profit Emas
+                    </h4>
+                    <p class="text-xs text-slate-400 leading-relaxed">
+                        Menabung emas secara konsisten melindungi nilai uang dari inflasi. Dengan estimasi harga emas naik rata-rata per tahun, keuntungan bersih (*capital gain*) di tahun ke-5 bisa mencapai puluhan juta rupiah, sangat ideal untuk tambahan dana mudik atau DP kendaraan.
+                    </p>
+                    <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
+                        <div class="flex justify-between text-xs">
+                            <span class="text-slate-400">Estimasi Total Berat Emas Terkumpul:</span>
+                            <span id="detailGram" class="font-bold text-amber-400">0 Gram</span>
+                        </div>
+                        <div class="flex justify-between text-xs">
+                            <span class="text-slate-400">Harga Emas Proyeksi Tahun ke-5:</span>
+                            <span id="detailFuturePrice" class="font-bold text-white">Rp 0 / gram</span>
+                        </div>
+                        <div class="flex justify-between text-xs border-t border-slate-800 pt-2">
+                            <span class="text-slate-400 font-semibold">Potensi Keuntungan Bersih (Profit):</span>
+                            <span id="detailProfit" class="font-bold text-emerald-400">+ Rp 0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="content-carplanner" class="tab-content hidden space-y-6">
+            <div class="bg-gradient-to-r from-slate-900 via-slate-900 to-orange-950/30 border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col md:flex-row items-center justify-between gap-6">
+                <div>
+                    <h3 class="text-xl font-bold text-white flex items-center">
+                        <i data-lucide="car" class="w-6 h-6 mr-2 text-orange-500"></i>
+                        Simulasi Pembelian Mobil Mudik (Rute Depok - Cianjur Selatan / Kadupandak)
+                    </h3>
+                    <p class="text-xs text-slate-400 mt-1 max-w-2xl leading-relaxed">
+                        Berdasarkan target tabungan Rp 90 Juta, berikut perbandingan mendalam dua mobil bekas populer untuk melibas jalur ekstrem pegunungan Cianjur Selatan.
+                    </p>
+                </div>
+                <div class="bg-slate-950 px-5 py-3 rounded-xl border border-slate-800 text-center">
+                    <span class="text-xs text-slate-400 block">Dana Tabungan Anda</span>
+                    <span id="carPlannerBudget" class="text-xl font-bold text-emerald-400">Rp 90.000.000</span>
+                </div>
+            </div>
+
+            <!-- Comparison Cards Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Avanza 2012 Card -->
+                <div class="bg-slate-900 border-2 border-orange-500/50 rounded-2xl p-6 shadow-xl relative overflow-hidden flex flex-col justify-between">
+                    <div class="absolute top-4 right-4 bg-orange-500/20 text-orange-400 text-xs font-bold px-3 py-1 rounded-full border border-orange-500/30">
+                        Rekomendasi Utama Mudik ⛰️
+                    </div>
+                    <div class="space-y-4">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-12 h-12 rounded-xl bg-orange-500/10 flex items-center justify-center text-orange-500">
+                                <i data-lucide="shield-check" class="w-6 h-6"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-lg font-bold text-white">Toyota Avanza 2012</h4>
+                                <p class="text-xs text-slate-400">Penggerak Roda Belakang (RWD)</p>
+                            </div>
+                        </div>
+
+                        <div class="space-y-2 text-xs">
+                            <div class="flex justify-between py-1.5 border-b border-slate-800">
+                                <span class="text-slate-400">Estimasi Harga Bekas:</span>
+                                <span class="font-bold text-white">Rp 85 - 95 Juta</span>
+                            </div>
+                            <div class="flex justify-between py-1.5 border-b border-slate-800">
+                                <span class="text-slate-400">Medan Ekstrem (Tanjakan Kadupandak):</span>
+                                <span class="font-bold text-emerald-400">Sangat Tangguh (RWD Kuat)</span>
+                            </div>
+                            <div class="flex justify-between py-1.5 border-b border-slate-800">
+                                <span class="text-slate-400">Kaki-kaki & Ground Clearance:</span>
+                                <span class="font-bold text-white">Tinggi, Badak, Mudah Diservis</span>
+                            </div>
+                            <div class="flex justify-between py-1.5">
+                                <span class="text-slate-400">Kapasitas & Muatan:</span>
+                                <span class="font-bold text-white">7 Seater Lega, Bagasi Luas</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 pt-4 border-t border-slate-800 bg-slate-950/40 p-3 rounded-xl">
+                        <p class="text-xs text-slate-300 italic">
+                            "Pilihan paling aman dan minim drama untuk nanjak curam di Cianjur Selatan dengan muatan penuh."
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Calya 2017 Card -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl relative overflow-hidden flex flex-col justify-between">
+                    <div class="absolute top-4 right-4 bg-slate-800 text-slate-300 text-xs font-semibold px-3 py-1 rounded-full border border-slate-700">
+                        Tahun Lebih Muda ✨
+                    </div>
+                    <div class="space-y-4">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-400">
+                                <i data-lucide="gauge" class="w-6 h-6"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-lg font-bold text-white">Toyota Calya 2017</h4>
+                                <p class="text-xs text-slate-400">Penggerak Roda Depan (FWD)</p>
+                            </div>
+                        </div>
+
+                        <div class="space-y-2 text-xs">
+                            <div class="flex justify-between py-1.5 border-b border-slate-800">
+                                <span class="text-slate-400">Estimasi Harga Bekas:</span>
+                                <span class="font-bold text-white">Rp 88 - 98 Juta</span>
+                            </div>
+                            <div class="flex justify-between py-1.5 border-b border-slate-800">
+                                <span class="text-slate-400">Medan Ekstrem (Tanjakan Kadupandak):</span>
+                                <span class="font-bold text-amber-400">Cukup (Perlu Hati-hati saat FWD Spin)</span>
+                            </div>
+                            <div class="flex justify-between py-1.5 border-b border-slate-800">
+                                <span class="text-slate-400">Konsumsi Bahan Bakar:</span>
+                                <span class="font-bold text-emerald-400">Sangat Irit (LCGC)</span>
+                            </div>
+                            <div class="flex justify-between py-1.5">
+                                <span class="text-slate-400">Kondisi Unit:</span>
+                                <span class="font-bold text-white">Lebih Segar (Usia ~9 Tahun)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 pt-4 border-t border-slate-800 bg-slate-950/40 p-3 rounded-xl">
+                        <p class="text-xs text-slate-300 italic">
+                            "Unggul di tahun muda dan keiritan BBM harian, namun butuh teknik extra saat nanjak curam berat."
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="content-history" class="tab-content hidden space-y-6">
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-6">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div>
+                        <h3 class="text-lg font-bold text-white">Catatan & Riwayat Setoran Bulanan</h3>
+                        <p class="text-xs text-slate-400">Mulai pencatatan dari Akhir Bulan Oktober 2026.</p>
+                    </div>
+                    <button onclick="addDepositLog()" class="px-4 py-2 bg-orange-600 hover:bg-orange-500 text-white text-xs font-bold rounded-xl transition flex items-center space-x-2 shadow-lg shadow-orange-600/20">
+                        <i data-lucide="plus" class="w-4 h-4"></i>
+                        <span>Catat Setoran Bulan Ini (+Rp 1.5 Juta)</span>
+                    </button>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-slate-950 text-slate-400 uppercase tracking-wider border-b border-slate-800">
+                            <tr>
+                                <th class="py-3 px-4">Bulan / Periode</th>
+                                <th class="py-3 px-4">Jumlah Setoran</th>
+                                <th class="py-3 px-4">Harga Emas Acuan</th>
+                                <th class="py-3 px-4">Akumulasi Gram Emas</th>
+                                <th class="py-3 px-4 text-right">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historyTableBody" class="divide-y divide-slate-800 text-slate-300">
+                            <!-- Dynamic rows via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="border-t border-slate-800 py-6 mt-12 text-center text-xs text-slate-500">
+        <p>TabunganKu Pro &copy; 2026. Dibuat khusus untuk perencanaan finansial dan mudik Cianjur Selatan.</p>
+    </footer>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // State & LocalStorage (Clean default without dummy history)
+        let appState = JSON.parse(localStorage.getItem('tabunganku_state')) || {
+            monthlyDeposit: 1500000,
+            durationMonths: 60,
+            currentGoldPrice: 1350000,
+            goldGrowthRate: 8,
+            interestRate: 6,
+            history: []
+        };
+
+        function saveState() {
+            localStorage.setItem('tabunganku_state', JSON.stringify(appState));
+        }
+
+        // Switch Tabs Function
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('border-orange-500', 'text-orange-500');
+                btn.classList.add('border-transparent', 'text-slate-400');
+            });
+            
+            document.getElementById(`content-${tabId}`).classList.remove('hidden');
+            const activeBtn = document.getElementById(`tab-${tabId}`);
+            activeBtn.classList.add('border-orange-500', 'text-orange-500');
+            activeBtn.classList.remove('border-transparent', 'text-slate-400');
+            lucide.createIcons();
+        }
+
+        // Format Currency Helper
+        function formatIDR(num) {
+            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(num);
+        }
+
+        // Calculation Engine
+        function calculateSavings() {
+            const monthly = parseFloat(document.getElementById('monthlyDeposit').value) || 1500000;
+            const months = parseInt(document.getElementById('durationMonths').value) || 60;
+            const goldPrice = parseFloat(document.getElementById('currentGoldPrice').value) || 1350000;
+            const goldGrowth = parseFloat(document.getElementById('goldGrowthRate').value) / 100 || 0.08;
+            const interest = parseFloat(document.getElementById('interestRate').value) / 100 / 12 || 0.06/12;
+
+            appState.monthlyDeposit = monthly;
+            appState.durationMonths = months;
+            appState.currentGoldPrice = goldPrice;
+            appState.goldGrowthRate = goldGrowth * 100;
+            appState.interestRate = interest * 12 * 100;
+            saveState();
+
+            // Total Principal
+            const totalPokok = monthly * months;
+
+            // Bank compound interest formula for periodic savings
+            let totalBank = 0;
+            for(let i=0; i<months; i++) {
+                totalBank = (totalBank + monthly) * (1 + interest);
+            }
+
+            // Gold accumulation simulation
+            let totalGrams = 0;
+            let currentSimGoldPrice = goldPrice;
+            const monthlyGoldInfl = Math.pow(1 + goldGrowth, 1/12) - 1;
+            
+            for(let i=0; i<months; i++) {
+                totalGrams += monthly / currentSimGoldPrice;
+                currentSimGoldPrice *= (1 + monthlyGoldInfl);
+            }
+
+            const futureGoldPricePerGram = goldPrice * Math.pow(1 + goldGrowth, months / 12);
+            const totalGoldValuation = totalGrams * futureGoldPricePerGram;
+            const goldProfit = totalGoldValuation - totalPokok;
+
+            // Update UI Dashboard & Results
+            document.getElementById('dashTotalPokok').innerText = formatIDR(totalPokok);
+            document.getElementById('resTotalPokok').innerText = formatIDR(totalPokok);
+            document.getElementById('resCash').innerText = formatIDR(totalPokok);
+            document.getElementById('resBank').innerText = formatIDR(Math.round(totalBank));
+            document.getElementById('resGold').innerText = formatIDR(Math.round(totalGoldValuation));
+            
+            document.getElementById('dashTotalGold').innerText = totalGrams.toFixed(2) + ' Gram';
+            document.getElementById('dashProjectedValue').innerText = formatIDR(Math.round(totalGoldValuation));
+            document.getElementById('resGoldWeight').innerText = `~${totalGrams.toFixed(1)} Gram Emas Fisik`;
+
+            document.getElementById('detailGram').innerText = totalGrams.toFixed(2) + ' Gram';
+            document.getElementById('detailFuturePrice').innerText = formatIDR(Math.round(futureGoldPricePerGram)) + ' / gram';
+            document.getElementById('detailProfit').innerText = '+ ' + formatIDR(Math.round(goldProfit));
+
+            // Car Affordability Status
+            const targetCar = 90000000;
+            if(totalGoldValuation >= targetCar || totalPokok >= targetCar || totalBank >= targetCar) {
+                document.getElementById('dashCarStatus').innerText = 'Target Tercapai! 🚗';
+                document.getElementById('dashCarStatus').className = 'text-xl font-bold mt-2 text-emerald-400';
+                document.getElementById('dashCarDesc').innerText = 'Bisa pinang Avanza/Calya tunai!';
+            } else {
+                const percentage = Math.min(100, Math.round((totalPokok / targetCar) * 100));
+                document.getElementById('dashCarStatus').innerText = `${percentage}% Tercapai`;
+                document.getElementById('dashCarStatus').className = 'text-xl font-bold mt-2 text-orange-400';
+                document.getElementById('dashCarDesc').innerText = `Kurang ${formatIDR(targetCar - totalPokok)}`;
+            }
+
+            document.getElementById('carPlannerBudget').innerText = formatIDR(totalPokok);
+        }
+
+        // History Log Management (Starting from October 2026)
+        const monthNames = [
+            "Oktober 2026", "November 2026", "Desember 2026",
+            "Januari 2027", "Februari 2027", "Maret 2027", "April 2027", "Mei 2027", "Juni 2027", "Juli 2027", "Agustus 2027", "September 2027", "Oktober 2027",
+            "November 2027", "Desember 2027", "Januari 2028", "Februari 2028", "Maret 2028", "April 2028", "Mei 2028", "Juni 2028", "Juli 2028", "Agustus 2028", "September 2028", "Oktober 2028",
+            "November 2028", "Desember 2028", "Januari 2029", "Februari 2029", "Maret 2029", "April 2029", "Mei 2029", "Juni 2029", "Juli 2029", "Agustus 2029", "September 2029", "Oktober 2029",
+            "November 2029", "Desember 2029", "Januari 2030", "Februari 2030", "Maret 2030", "April 2030", "Mei 2030", "Juni 2030", "Juli 2030", "Agustus 2030", "September 2030", "Oktober 2030",
+            "November 2030", "Desember 2030", "Januari 2031", "Februari 2031", "Maret 2031", "April 2031", "Mei 2031", "Juni 2031", "Juli 2031", "Agustus 2031", "September 2031"
+        ];
+
+        function renderHistory() {
+            const tbody = document.getElementById('historyTableBody');
+            tbody.innerHTML = '';
+            
+            if(appState.history.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="py-6 text-center text-slate-500 italic">Belum ada catatan setoran. Klik tombol "Catat Setoran Bulan Ini" untuk mulai mencatat periode Oktober 2026.</td></tr>`;
+                return;
+            }
+
+            appState.history.forEach((item, index) => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-900/50 transition';
+                tr.innerHTML = `
+                    <td class="py-3 px-4 font-medium text-white">${item.monthLabel}</td>
+                    <td class="py-3 px-4">${formatIDR(item.amount)}</td>
+                    <td class="py-3 px-4">${formatIDR(item.goldPrice)}</td>
+                    <td class="py-3 px-4 text-amber-400 font-semibold">${item.grams} Gram</td>
+                    <td class="py-3 px-4 text-right">
+                        <button onclick="deleteHistory(${index})" class="text-rose-400 hover:text-rose-300 p-1"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+            lucide.createIcons();
+        }
+
+        function addDepositLog() {
+            const currentIdx = appState.history.length;
+            if(currentIdx >= monthNames.length) {
+                alert("Maksimal pencatatan 60 bulan (5 tahun) sudah tercapai!");
+                return;
+            }
+
+            const amount = appState.monthlyDeposit;
+            const price = appState.currentGoldPrice;
+            const grams = parseFloat((amount / price).toFixed(2));
+            const label = monthNames[currentIdx];
+
+            appState.history.push({
+                id: Date.now(),
+                monthLabel: label,
+                amount: amount,
+                goldPrice: price,
+                grams: grams
+            });
+
+            saveState();
+            renderHistory();
+            calculateSavings();
+        }
+
+        function deleteHistory(index) {
+            appState.history.splice(index, 1);
+            saveState();
+            renderHistory();
+            calculateSavings();
+        }
+
+        function resetData() {
+            if(confirm('Reset semua riwayat dan pengaturan ke awal?')) {
+                localStorage.removeItem('tabunganku_state');
+                location.reload();
+            }
+        }
+
+        // Initialize on load
+        window.onload = function() {
+            document.getElementById('monthlyDeposit').value = appState.monthlyDeposit;
+            document.getElementById('durationMonths').value = appState.durationMonths;
+            document.getElementById('currentGoldPrice').value = appState.currentGoldPrice;
+            document.getElementById('goldGrowthRate').value = appState.goldGrowthRate;
+            document.getElementById('interestRate').value = appState.interestRate;
+            
+            calculateSavings();
+            renderHistory();
+        }
+    </script>
+</body>
+</html>
